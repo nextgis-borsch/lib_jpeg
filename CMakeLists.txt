@@ -1,0 +1,154 @@
+cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
+
+project(jpeg C)
+
+# some init settings
+set(CMAKE_COLOR_MAKEFILE ON)
+# set path to additional CMake modules
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
+set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
+
+option(BMP_SUPPORTED "BMP image file format" ON)
+option(GIF_SUPPORTED "GIF image file format" ON)
+option(PPM_SUPPORTED "PBMPLUS PPM/PGM image file format" ON)
+option(RLE_SUPPORTED "Utah RLE image file format" ON)
+option(TARGA_SUPPORTED "Targa image file format" ON)
+
+include(CheckTypeSize)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
+
+check_include_file ( stddef.h HAVE_STDDEF_H )
+check_include_file ( stdlib.h HAVE_STDLIB_H )
+if ( WIN32 AND NOT CYGWIN )
+  set ( TWO_FILE_COMMANDLINE true )
+endif ( )
+
+configure_file(${CMAKE_MODULE_PATH}/jconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h )
+configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+
+include_directories ( ${CMAKE_CURRENT_BINARY_DIR} )
+
+set(JPEG_PUBLIC_HDRS
+    ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h
+    jpeglib.h
+)
+
+set(JPEG_PRIVATE_HDRS
+    jerror.h 
+    jmorecfg.h
+    cderror.h
+    cdjpeg.h 
+    jdct.h
+    jinclude.h 
+    jmemsys.h 
+    jpegint.h 
+    jversion.h 
+    transupp.h
+)
+
+set(JPEG_SRCS
+    jmemnobs.c 
+    jaricom.c 
+    jcapimin.c 
+    jcapistd.c 
+    jcarith.c 
+    jccoefct.c
+    jccolor.c
+    jcdctmgr.c 
+    jchuff.c 
+    jcinit.c 
+    jcmainct.c 
+    jcmarker.c 
+    jcmaster.c 
+    jcomapi.c 
+    jcparam.c
+    jcprepct.c
+    jcsample.c 
+    jctrans.c
+    jdapimin.c 
+    jdapistd.c
+    jdarith.c
+    jdatadst.c
+    jdatasrc.c
+    jdcoefct.c 
+    jdcolor.c 
+    jddctmgr.c
+    jdhuff.c
+    jdinput.c 
+    jdmainct.c 
+    jdmarker.c 
+    jdmaster.c
+    jdmerge.c 
+    jdpostct.c 
+    jdsample.c 
+    jdtrans.c 
+    jerror.c 
+    jfdctflt.c 
+    jfdctfst.c 
+    jfdctint.c
+    jidctflt.c 
+    jidctfst.c 
+    jidctint.c
+    jquant1.c 
+    jquant2.c 
+    jutils.c 
+    jmemmgr.c
+)
+
+
+# parse the full version number from jpeglib.h and include in JPEG_FULL_VERSION
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/jpeglib.h _jpeglib_h_contents)
+string(REGEX MATCH "JPEG_LIB_VERSION_MAJOR[ \t]+([0-9]+)"
+  JPEG_LIB_VERSION_MAJOR ${_jpeglib_h_contents})
+string (REGEX MATCH "([0-9]+)"
+  JPEG_LIB_VERSION_MAJOR ${JPEG_LIB_VERSION_MAJOR})
+string(REGEX MATCH "JPEG_LIB_VERSION_MINOR[ \t]+([0-9]+)"
+  JPEG_LIB_VERSION_MINOR ${_jpeglib_h_contents})
+string (REGEX MATCH "([0-9]+)"
+  JPEG_LIB_VERSION_MINOR ${JPEG_LIB_VERSION_MINOR})
+
+message(STATUS "libjpeg version ${JPEG_LIB_VERSION_MAJOR}.${JPEG_LIB_VERSION_MINOR}")    
+
+if(BUILD_SHARED_LIBS)
+    set(LIB_NAME jpeg)
+    add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
+    set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_DLL)
+    set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
+else()    
+    set(LIB_NAME jpegstatic)
+    add_library(${LIB_NAME} STATIC ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
+    set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
+endif()    
+
+export(TARGETS ${LIB_NAME} FILE ${LIB_NAME}-exports.cmake)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+if(NOT CYGWIN)
+    set_target_properties(${LIB_NAME} PROPERTIES VERSION ${JPEG_LIB_VERSION_MAJOR}.${JPEG_LIB_VERSION_MINOR})
+endif()
+
+if(UNIX)
+    # On unix-like platforms the library is almost always called libjpeg
+    set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg)
+    if(NOT APPLE AND BUILD_SHARED_LIBS)
+        set_target_properties(${LIB_NAME} PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/libjpeg.map\"")
+    endif()
+elseif(BUILD_SHARED_LIBS AND WIN32)
+    set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "${JPEG_LIB_VERSION_MAJOR}${JPEG_LIB_VERSION_MINOR}.dll")
+endif()
+
+if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+    install(TARGETS ${LIB_NAME} 
+        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+endif()
+if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
+    install(FILES ${JPEG_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
+endif()
+
