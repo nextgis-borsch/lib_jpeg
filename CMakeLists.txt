@@ -59,14 +59,26 @@ configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BIN
 
 include_directories ( ${CMAKE_CURRENT_BINARY_DIR} )
 
+if(NOT BUILD_JPEG_8 AND NOT BUILD_JPEG_12)
+    set(BUILD_JPEG_8 TRUE)
+endif()
+
+if(BUILD_JPEG_8) 
+    configure_file(${CMAKE_MODULE_PATH}/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
+endif()    
+
+if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+    configure_file(${CMAKE_MODULE_PATH}/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
+endif()   
+
 set(JPEG_PUBLIC_HDRS
     ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h
     jpeglib.h
+    ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h
 )
 
 set(JPEG_PRIVATE_HDRS
     jerror.h 
-    jmorecfg.h
     cderror.h
     cdjpeg.h 
     jdct.h
@@ -128,18 +140,13 @@ set(JPEG_SRCS
 
 
 # parse the full version number from jpeglib.h and include in JPEG_FULL_VERSION
-file(READ ${CMAKE_CURRENT_SOURCE_DIR}/jpeglib.h _jpeglib_h_contents)
-string(REGEX MATCH "JPEG_LIB_VERSION_MAJOR[ \t]+([0-9]+)"
-  JPEG_LIB_VERSION_MAJOR ${_jpeglib_h_contents})
-string (REGEX MATCH "([0-9]+)"
-  JPEG_LIB_VERSION_MAJOR ${JPEG_LIB_VERSION_MAJOR})
-string(REGEX MATCH "JPEG_LIB_VERSION_MINOR[ \t]+([0-9]+)"
-  JPEG_LIB_VERSION_MINOR ${_jpeglib_h_contents})
-string (REGEX MATCH "([0-9]+)"
-  JPEG_LIB_VERSION_MINOR ${JPEG_LIB_VERSION_MINOR})
-
-message(STATUS "libjpeg version ${JPEG_LIB_VERSION_MAJOR}.${JPEG_LIB_VERSION_MINOR}")    
-
+include(util)
+set(JPEG_VERSION_MAJOR)
+set(JPEG_VERSION_MINOR)
+check_version(JPEG_VERSION_MAJOR JPEG_VERSION_MINOR)
+set(VERSION "${JPEG_VERSION_MAJOR}.${JPEG_VERSION_MINOR}")
+report_version(${PROJECT_NAME} ${VERSION})
+ 
 if(BUILD_SHARED_LIBS)
     set(LIB_NAME jpeg)
     add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
@@ -155,17 +162,25 @@ export(TARGETS ${LIB_NAME} FILE ${LIB_NAME}-exports.cmake)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 if(NOT CYGWIN)
-    set_target_properties(${LIB_NAME} PROPERTIES VERSION ${JPEG_LIB_VERSION_MAJOR}.${JPEG_LIB_VERSION_MINOR})
+    set_target_properties(${LIB_NAME} PROPERTIES VERSION ${VERSION})
 endif()
 
 if(UNIX)
     # On unix-like platforms the library is almost always called libjpeg
-    set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg)
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+        set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg12)
+    elseif(BUILD_JPEG_8)
+        set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg)
+    endif()
     if(NOT APPLE AND BUILD_SHARED_LIBS)
         set_target_properties(${LIB_NAME} PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/libjpeg.map\"")
     endif()
 elseif(BUILD_SHARED_LIBS AND WIN32)
-    set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "${JPEG_LIB_VERSION_MAJOR}${JPEG_LIB_VERSION_MINOR}.dll")
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+        set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "12_${JPEG_VERSION_MAJOR}${JPEG_VERSION_MINOR}.dll")
+    elseif(BUILD_JPEG_8)
+        set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "${JPEG_VERSION_MAJOR}${JPEG_VERSION_MINOR}.dll")
+    endif()
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
