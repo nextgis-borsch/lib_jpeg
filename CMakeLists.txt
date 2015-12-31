@@ -50,8 +50,17 @@ include(CheckCSourceCompiles)
 
 check_include_file ( stddef.h HAVE_STDDEF_H )
 check_include_file ( stdlib.h HAVE_STDLIB_H )
+check_include_file ( string.h HAVE_STRING_H )
+
+if(NOT HAVE_STRING_H)
+    check_include_file ( strings.h HAVE_STRINGS_H )
+    if(HAVE_STRINGS_H)
+        set(NEED_BSD_STRINGS TRUE)
+    endif()    
+endif()
+
 if ( WIN32 AND NOT CYGWIN )
-  set ( TWO_FILE_COMMANDLINE true )
+  set (TWO_FILE_COMMANDLINE TRUE)
 endif ( )
 
 configure_file(${CMAKE_MODULE_PATH}/jconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h )

@@ -60,7 +60,7 @@
 /* Define this if your system does not have an ANSI/SysV <string.h>,
  * but does have a BSD-style <strings.h>.
  */
-#undef NEED_BSD_STRINGS
+#cmakedefine NEED_BSD_STRINGS
 
 /* Define this if your system does not provide typedef size_t in any of the
  * ANSI-standard places (stddef.h, stdlib.h, or stdio.h), but places it in
@@ -91,13 +91,18 @@
 #undef INCOMPLETE_TYPES_BROKEN
 
 /* from jconfig.vc */
-#ifdef _MSC_VER
-  /* Define "boolean" as unsigned char, not int, per Windows custom */
-  #ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
-  typedef unsigned char boolean;
-  #endif
-  #define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
-#endif
+//#ifdef _MSC_VER
+    #ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
+    typedef unsigned char boolean;
+    #endif
+    #ifndef FALSE			/* in case these macros already exist */
+    #define FALSE	0		/* values of boolean */
+    #endif
+    #ifndef TRUE
+    #define TRUE	1
+    #endif
+    #define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
+//#endif
 
 /*
  * The following options affect code selection within the JPEG library,
