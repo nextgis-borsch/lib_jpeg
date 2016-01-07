@@ -84,10 +84,10 @@ set(JPEG_PUBLIC_HDRS
     ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h
     jpeglib.h
     ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h
+    jerror.h 
 )
 
 set(JPEG_PRIVATE_HDRS
-    jerror.h 
     cderror.h
     cdjpeg.h 
     jdct.h
