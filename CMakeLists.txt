@@ -150,8 +150,6 @@ set(JPEG_SRCS
 
 # parse the full version number from jpeglib.h and include in JPEG_FULL_VERSION
 include(util)
-set(JPEG_VERSION_MAJOR)
-set(JPEG_VERSION_MINOR)
 check_version(JPEG_VERSION_MAJOR JPEG_VERSION_MINOR)
 set(VERSION "${JPEG_VERSION_MAJOR}.${JPEG_VERSION_MINOR}")
 
@@ -165,7 +163,7 @@ report_version(${PROJECT_NAME} ${VERSION_FULL})
 if(BUILD_SHARED_LIBS)
     set(LIB_NAME jpeg)
     add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
-    set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_DLL)
+    set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_DLL_EXPORTS)
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
 else()    
     set(LIB_NAME jpegstatic)
