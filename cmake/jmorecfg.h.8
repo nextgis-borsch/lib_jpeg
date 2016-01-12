@@ -248,7 +248,7 @@ typedef unsigned int JDIMENSION;
 #ifdef JPEG_STATIC
   #define EXTERN(type) extern type
 #else
-#   ifdef _WIN32
+#   if defined (_WIN32) || defined (WINDOWS)
 #    ifdef JPEG_DLL_EXPORTS
 #      ifdef __GNUC__
 #        define EXTERN(type) extern __attribute__((dllexport)) type
