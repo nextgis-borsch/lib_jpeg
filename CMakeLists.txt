@@ -168,6 +168,7 @@ if(BUILD_SHARED_LIBS)
 else()    
     set(LIB_NAME jpegstatic)
     add_library(${LIB_NAME} STATIC ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
+    set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_STATIC)
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
 endif()    
 
