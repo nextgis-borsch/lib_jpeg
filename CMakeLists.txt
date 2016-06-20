@@ -69,8 +69,8 @@ if ( WIN32 AND NOT CYGWIN )
   set (TWO_FILE_COMMANDLINE TRUE)
 endif ( )
 
-configure_file(${CMAKE_MODULE_PATH}/jconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h )
-configure_file(${CMAKE_MODULE_PATH}/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/cmake/jconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h )
+configure_file(${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake IMMEDIATE @ONLY)
 
 include_directories ( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -79,11 +79,11 @@ if(NOT BUILD_JPEG_8 AND NOT BUILD_JPEG_12)
 endif()
 
 if(BUILD_JPEG_8) 
-    configure_file(${CMAKE_MODULE_PATH}/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
 endif()    
 
 if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
-    configure_file(${CMAKE_MODULE_PATH}/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
+    configure_file(${CMAKE_SOURCE_DIR}/cmake/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
 endif()   
 
 set(JPEG_PUBLIC_HDRS
