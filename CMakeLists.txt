@@ -33,11 +33,20 @@ set(CMAKE_COLOR_MAKEFILE ON)
 # set path to additional CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-include(GNUInstallDirs)
+if(OSX_FRAMEWORK)
+  set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/Applications" CACHE INTERNAL "Installation directory for executables" FORCE)
+  set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/Library/Frameworks" CACHE INTERNAL "Installation directory for libraries" FORCE)
+  set(SKIP_INSTALL_HEADERS ON)
+  set(SKIP_INSTALL_EXECUTABLES ON)
+  set(SKIP_INSTALL_FILES ON)
+  set(SKIP_INSTALL_EXPORT ON)
+else()
+  include(GNUInstallDirs)
 
-set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
-set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
-set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
+  set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
+  set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
+  set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
+endif()
 
 if(CMAKE_GENERATOR_TOOLSET MATCHES "v([0-9]+)_xp")
     add_definitions(-D_WIN32_WINNT=0x0501)
@@ -62,7 +71,7 @@ if(NOT HAVE_STRING_H)
     check_include_file ( strings.h HAVE_STRINGS_H )
     if(HAVE_STRINGS_H)
         set(NEED_BSD_STRINGS TRUE)
-    endif()    
+    endif()
 endif()
 
 if ( WIN32 AND NOT CYGWIN )
@@ -78,78 +87,78 @@ if(NOT BUILD_JPEG_8 AND NOT BUILD_JPEG_12)
     set(BUILD_JPEG_8 TRUE)
 endif()
 
-if(BUILD_JPEG_8) 
+if(BUILD_JPEG_8)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
-endif()    
+endif()
 
-if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
     configure_file(${CMAKE_SOURCE_DIR}/cmake/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h )
-endif()   
+endif()
 
 set(JPEG_PUBLIC_HDRS
     ${CMAKE_CURRENT_BINARY_DIR}/jconfig.h
     jpeglib.h
     ${CMAKE_CURRENT_BINARY_DIR}/jmorecfg.h
-    jerror.h 
+    jerror.h
 )
 
 set(JPEG_PRIVATE_HDRS
     cderror.h
-    cdjpeg.h 
+    cdjpeg.h
     jdct.h
-    jinclude.h 
-    jmemsys.h 
-    jpegint.h 
-    jversion.h 
+    jinclude.h
+    jmemsys.h
+    jpegint.h
+    jversion.h
     transupp.h
 )
 
 set(JPEG_SRCS
-    jmemnobs.c 
-    jaricom.c 
-    jcapimin.c 
-    jcapistd.c 
-    jcarith.c 
+    jmemnobs.c
+    jaricom.c
+    jcapimin.c
+    jcapistd.c
+    jcarith.c
     jccoefct.c
     jccolor.c
-    jcdctmgr.c 
-    jchuff.c 
-    jcinit.c 
-    jcmainct.c 
-    jcmarker.c 
-    jcmaster.c 
-    jcomapi.c 
+    jcdctmgr.c
+    jchuff.c
+    jcinit.c
+    jcmainct.c
+    jcmarker.c
+    jcmaster.c
+    jcomapi.c
     jcparam.c
     jcprepct.c
-    jcsample.c 
+    jcsample.c
     jctrans.c
-    jdapimin.c 
+    jdapimin.c
     jdapistd.c
     jdarith.c
     jdatadst.c
     jdatasrc.c
-    jdcoefct.c 
-    jdcolor.c 
+    jdcoefct.c
+    jdcolor.c
     jddctmgr.c
     jdhuff.c
-    jdinput.c 
-    jdmainct.c 
-    jdmarker.c 
+    jdinput.c
+    jdmainct.c
+    jdmarker.c
     jdmaster.c
-    jdmerge.c 
-    jdpostct.c 
-    jdsample.c 
-    jdtrans.c 
-    jerror.c 
-    jfdctflt.c 
-    jfdctfst.c 
+    jdmerge.c
+    jdpostct.c
+    jdsample.c
+    jdtrans.c
+    jerror.c
+    jfdctflt.c
+    jfdctfst.c
     jfdctint.c
-    jidctflt.c 
-    jidctfst.c 
+    jidctflt.c
+    jidctfst.c
     jidctint.c
-    jquant1.c 
-    jquant2.c 
-    jutils.c 
+    jquant1.c
+    jquant2.c
+    jutils.c
     jmemmgr.c
 )
 
@@ -165,25 +174,36 @@ elseif(BUILD_JPEG_12)
     set(VERSION_FULL "${VERSION} [12-bit]")
 endif()
 report_version(${PROJECT_NAME} ${VERSION_FULL})
- 
+
 if(BUILD_SHARED_LIBS)
     set(LIB_NAME jpeg)
     add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
     set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_DLL_EXPORTS)
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
-else()    
+elseif(OSX_FRAMEWORK)
+  set(LIB_NAME jpeg_framework)
+  add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
+  set_target_properties(${LIB_NAME} PROPERTIES
+    FRAMEWORK TRUE
+    FRAMEWORK_VERSION ${VERSION}
+    MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${VERSION}
+    MACOSX_FRAMEWORK_BUNDLE_VERSION ${VERSION}
+    MACOSX_FRAMEWORK_IDENTIFIER org.libjpeg.libjpeg
+    XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
+    PUBLIC_HEADER "${JPEG_PUBLIC_HDRS}")
+else()
     if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
         set( CMAKE_CXX_FLAGS "-fpic ${CMAKE_CXX_FLAGS}" )
-        set( CMAKE_C_FLAGS   "-fpic ${CMAKE_C_FLAGS}" )  
+        set( CMAKE_C_FLAGS   "-fpic ${CMAKE_C_FLAGS}" )
     endif()
     add_definitions(-DJPEG_STATIC)
     set(LIB_NAME jpegstatic)
     add_library(${LIB_NAME} STATIC ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
     #set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL JPEG_STATIC)
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
-endif()    
+endif()
 
-export(TARGETS ${LIB_NAME} FILE ${LIB_NAME}-exports.cmake)
+export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}-exports.cmake)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 if(NOT CYGWIN)
@@ -192,7 +212,7 @@ endif()
 
 if(UNIX)
     # On unix-like platforms the library is almost always called libjpeg
-    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
         set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg12)
     elseif(BUILD_JPEG_8)
         set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME jpeg)
@@ -201,7 +221,7 @@ if(UNIX)
         set_target_properties(${LIB_NAME} PROPERTIES LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/libjpeg.map\"")
     endif()
 elseif(BUILD_SHARED_LIBS AND WIN32)
-    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8) 
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
         set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "12_${JPEG_VERSION_MAJOR}${JPEG_VERSION_MINOR}.dll")
     elseif(BUILD_JPEG_8)
         set_target_properties(${LIB_NAME} PROPERTIES SUFFIX "${JPEG_VERSION_MAJOR}${JPEG_VERSION_MINOR}.dll")
@@ -209,12 +229,12 @@ elseif(BUILD_SHARED_LIBS AND WIN32)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
-    install(TARGETS ${LIB_NAME} 
-        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
-        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+    install(TARGETS ${LIB_NAME}
+        RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+        FRAMEWORK DESTINATION ${INSTALL_LIB_DIR})
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
     install(FILES ${JPEG_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
 endif()
-
