@@ -224,7 +224,7 @@ else()
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
 endif()
 
-export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}-exports.cmake)
+export(TARGETS ${LIB_NAME} FILE ${LIB_NAME}-exports.cmake)
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 if(NOT CYGWIN)
