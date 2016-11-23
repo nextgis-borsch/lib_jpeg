@@ -66,7 +66,11 @@ else()
 
   set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
   set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
-  set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
+        set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR}/jpeg12 CACHE INTERNAL "Installation directory for headers" FORCE)
+    else()
+        set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
+    endif()
 endif()
 
 if(CMAKE_GENERATOR_TOOLSET MATCHES "v([0-9]+)_xp")
@@ -224,7 +228,12 @@ else()
     set_target_properties(${LIB_NAME} PROPERTIES SOVERSION 1)
 endif()
 
-export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}-exports.cmake)
+if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
+    export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}12-exports.cmake)
+elseif(BUILD_JPEG_8)
+    export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}-exports.cmake)
+endif()
+
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 if(NOT CYGWIN)
