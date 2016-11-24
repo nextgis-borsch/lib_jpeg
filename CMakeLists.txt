@@ -3,7 +3,7 @@
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
-# Copyright (C) 2015, NextGIS <info@nextgis.com>
+# Copyright (C) 2015-2016, NextGIS <info@nextgis.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -210,7 +210,7 @@ elseif(OSX_FRAMEWORK)
   add_library(${LIB_NAME} SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS} ${JPEG_PRIVATE_HDRS})
   set_target_properties(${LIB_NAME} PROPERTIES
     FRAMEWORK TRUE
-    FRAMEWORK_VERSION ${VERSION}
+    FRAMEWORK_VERSION "${JPEG_VERSION_MAJOR}.${JPEG_VERSION_MINOR}"
     MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${VERSION}
     MACOSX_FRAMEWORK_BUNDLE_VERSION ${VERSION}
     MACOSX_FRAMEWORK_IDENTIFIER org.libjpeg.libjpeg
