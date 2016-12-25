@@ -41,6 +41,13 @@ endif()
 if(OSX_FRAMEWORK)
   set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/Applications" CACHE INTERNAL "Installation directory for executables" FORCE)
   set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/Library/Frameworks" CACHE INTERNAL "Installation directory for libraries" FORCE)
+
+  if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
+      set(INSTALL_INC_DIR "${INSTALL_LIB_DIR}/${PROJECT_NAME}12.framework/Headers" CACHE INTERNAL "Installation directory for headers" FORCE)
+  else()
+      set(INSTALL_INC_DIR "${INSTALL_LIB_DIR}/${PROJECT_NAME}.framework/Headers" CACHE INTERNAL "Installation directory for headers" FORCE)
+  endif()
+
   set(SKIP_INSTALL_HEADERS ON)
   set(SKIP_INSTALL_EXECUTABLES ON)
   set(SKIP_INSTALL_FILES ON)
@@ -56,16 +63,16 @@ if(OSX_FRAMEWORK)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
   # the RPATH to be used when installing
-  set(CMAKE_INSTALL_RPATH "${INSTALL_LIB_DIR}")
+  set(CMAKE_INSTALL_RPATH "@executable_path/../../../../Library/Frameworks")
 
   # don't add the automatically determined parts of the RPATH
   # which point to directories outside the build tree to the install RPATH
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 else()
-  include(GNUInstallDirs)
+    include(GNUInstallDirs)
 
-  set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
-  set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
+    set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
+    set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
     if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
         set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR}/jpeg12 CACHE INTERNAL "Installation directory for headers" FORCE)
     else()
@@ -232,6 +239,31 @@ if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
     export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}12-exports.cmake)
 elseif(BUILD_JPEG_8)
     export(TARGETS ${LIB_NAME} FILE ${PROJECT_NAME}-exports.cmake)
+endif()
+
+if (REGISTER_PACKAGE)
+    if(BUILD_JPEG_12 AND NOT BUILD_JPEG_8)
+        set(EXPORT_PACKAGE_NAME JPEG12)
+        set(EXPORT_PACKAGE_LIB_NAME ${PROJECT_NAME}12)
+    elseif(BUILD_JPEG_8)
+        set(EXPORT_PACKAGE_NAME JPEG)
+        set(EXPORT_PACKAGE_LIB_NAME ${PROJECT_NAME})
+    endif()
+
+    set(EXPORT_PACKAGE_NAME_UPPER ${EXPORT_PACKAGE_NAME})
+
+    export(PACKAGE ${EXPORT_PACKAGE_NAME})
+
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(
+        ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_PACKAGE_NAME}Config.cmake
+        INSTALL_DESTINATION ${INSTALL_LIB_DIR}/cmake
+        PATH_VARS INSTALL_INC_DIR )
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/${EXPORT_PACKAGE_NAME}ConfigVersion.cmake
+        VERSION ${VERSION}
+        COMPATIBILITY AnyNewerVersion )
 endif()
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
