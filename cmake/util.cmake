@@ -39,6 +39,10 @@ function(check_version major minor)
     set(${major} ${JPEG_LIB_VERSION_MAJOR} PARENT_SCOPE)
     set(${minor} ${JPEG_LIB_VERSION_MINOR} PARENT_SCOPE)
 
+    # Store version string in file for installer needs
+    file(TIMESTAMP ${CMAKE_CURRENT_SOURCE_DIR}/jpeglib.h VERSION_DATETIME "%Y-%m-%d %H:%M:%S" UTC)
+    file(WRITE ${CMAKE_BINARY_DIR}/version.str "${JPEG_LIB_VERSION_MAJOR}.${JPEG_LIB_VERSION_MINOR}\n${VERSION_DATETIME}")
+
 endfunction(check_version)
 
 
@@ -47,7 +51,7 @@ function(report_version name ver)
     string(ASCII 27 Esc)
     set(BoldYellow  "${Esc}[1;33m")
     set(ColourReset "${Esc}[m")
-        
+
     message(STATUS "${BoldYellow}${name} version ${ver}${ColourReset}")
-    
-endfunction()  
+
+endfunction()
