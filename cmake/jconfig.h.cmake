@@ -150,7 +150,7 @@
  * This is crucial under MS-DOS, where the temporary "files" may be areas
  * of extended memory; on most other systems it's not as important.
  */
-#undef NEED_SIGNAL_CATCHER
+#cmakedefine01 NEED_SIGNAL_CATCHER
 
 /* By default, we open image files with fopen(...,"rb") or fopen(...,"wb").
  * This is necessary on systems that distinguish text files from binary files,
@@ -163,5 +163,7 @@
  */
 #undef PROGRESS_REPORT
 
+#cmakedefine DEFAULT_MAX_MEM @DEFAULT_MAX_MEM@
+#cmakedefine01 NO_MKTEMP
 
 #endif /* JPEG_CJPEG_DJPEG */
