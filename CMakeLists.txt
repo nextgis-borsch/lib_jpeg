@@ -439,14 +439,7 @@ endif()
 
 # Export package ===============================================================
 
-# Add path to includes to build-tree export
-if(BUILD_JPEG_8)
-    target_include_directories(${LIB_NAME} PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/8>
-    )
-endif()
+# Create the <Package>Config.cmake file
 
 if(BUILD_JPEG_12)
     target_include_directories(${LIB_NAME}12 PUBLIC
@@ -454,23 +447,19 @@ if(BUILD_JPEG_12)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/12>
     )
-endif()
 
-# Add all targets to the build-tree export set
-export(TARGETS ${INSTALL_TARGETS}
-    FILE ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Targets.cmake)
-
-if(REGISTER_PACKAGE)
-    # Export the package for use from the build-tree
-    # (this registers the build-tree with a global CMake-registry)
-    export(PACKAGE ${PACKAGE_UPPER_NAME})
-endif()
-
-# Create the <Package>Config.cmake file
-
-if(BUILD_JPEG_12)
     set(PACKAGE_NAME ${PROJECT_NAME}12)
     string(TOUPPER ${PACKAGE_NAME} PACKAGE_UPPER_NAME)
+
+    # Add all targets to the build-tree export set
+    export(TARGETS ${INSTALL_TARGETS}
+        FILE ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Targets.cmake)
+
+    if(REGISTER_PACKAGE)
+        # Export the package for use from the build-tree
+        # (this registers the build-tree with a global CMake-registry)
+        export(PACKAGE ${PACKAGE_UPPER_NAME})
+    endif()
 
     configure_file(cmake/PackageConfig.cmake.in
         ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake @ONLY)
@@ -487,8 +476,24 @@ if(BUILD_JPEG_12)
 endif()
 
 if(BUILD_JPEG_8)
+    target_include_directories(${LIB_NAME} PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/8>
+    )
+
     set(PACKAGE_NAME ${PROJECT_NAME})
     string(TOUPPER ${PACKAGE_NAME} PACKAGE_UPPER_NAME)
+
+    # Add all targets to the build-tree export set
+    export(TARGETS ${INSTALL_TARGETS}
+        FILE ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Targets.cmake)
+
+    if(REGISTER_PACKAGE)
+        # Export the package for use from the build-tree
+        # (this registers the build-tree with a global CMake-registry)
+        export(PACKAGE ${PACKAGE_UPPER_NAME})
+    endif()
 
     configure_file(cmake/PackageConfig.cmake.in
         ${PROJECT_BINARY_DIR}/${PACKAGE_UPPER_NAME}Config.cmake @ONLY)
