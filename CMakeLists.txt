@@ -3,7 +3,7 @@
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
-# Copyright (C) 2015-2018, NextGIS <info@nextgis.com>
+# Copyright (C) 2015-2019, NextGIS <info@nextgis.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -169,6 +169,7 @@ set(JPEG_SRCS
     jquant2.c jutils.c jmemmgr.c ${MEMORYMGR}
 )
 
+set(PACKAGE_NAME ${PROJECT_NAME})
 
 # parse the full version number from jpeglib.h and include in JPEG_FULL_VERSION
 include(util)
@@ -508,8 +509,6 @@ if(BUILD_JPEG_8)
         install(EXPORT ${PACKAGE_UPPER_NAME}Targets DESTINATION ${INSTALL_CMAKECONF_DIR_8} COMPONENT dev)
     endif()
 endif()
-
-set(PACKAGE_NAME ${PROJECT_NAME})
 
 # Archiving ====================================================================
 
