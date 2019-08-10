@@ -310,37 +310,40 @@ if(NOT SKIP_INSTALL_DOCS AND NOT SKIP_INSTALL_ALL)
     endif()
 endif()
 
-# Executables to build
-set(cjpeg_SOURCES cjpeg.c rdppm.c rdgif.c rdtarga.c rdrle.c rdbmp.c
-    rdswitch.c cdjpeg.c
-)
-add_executable(cjpeg ${cjpeg_SOURCES})
-target_link_libraries(cjpeg ${LIB_NAME})
+option(BUILD_APPS "Build command line utilities" ON)
+if(BUILD_APPS)
+    # Executables to build
+    set(cjpeg_SOURCES cjpeg.c rdppm.c rdgif.c rdtarga.c rdrle.c rdbmp.c
+        rdswitch.c cdjpeg.c
+    )
+    add_executable(cjpeg ${cjpeg_SOURCES})
+    target_link_libraries(cjpeg ${LIB_NAME})
 
-set(djpeg_SOURCES djpeg.c wrppm.c wrgif.c wrtarga.c wrrle.c wrbmp.c
-    rdcolmap.c cdjpeg.c
-)
-add_executable(djpeg ${djpeg_SOURCES})
-target_link_libraries(djpeg ${LIB_NAME})
+    set(djpeg_SOURCES djpeg.c wrppm.c wrgif.c wrtarga.c wrrle.c wrbmp.c
+        rdcolmap.c cdjpeg.c
+    )
+    add_executable(djpeg ${djpeg_SOURCES})
+    target_link_libraries(djpeg ${LIB_NAME})
 
-set(jpegtran_SOURCES jpegtran.c rdswitch.c cdjpeg.c transupp.c)
-add_executable(jpegtran ${jpegtran_SOURCES})
-target_link_libraries(jpegtran ${LIB_NAME})
+    set(jpegtran_SOURCES jpegtran.c rdswitch.c cdjpeg.c transupp.c)
+    add_executable(jpegtran ${jpegtran_SOURCES})
+    target_link_libraries(jpegtran ${LIB_NAME})
 
-set(rdjpgcom_SOURCES rdjpgcom.c)
-add_executable(rdjpgcom ${rdjpgcom_SOURCES})
-target_link_libraries(rdjpgcom ${LIB_NAME})
+    set(rdjpgcom_SOURCES rdjpgcom.c)
+    add_executable(rdjpgcom ${rdjpgcom_SOURCES})
+    target_link_libraries(rdjpgcom ${LIB_NAME})
 
-set(wrjpgcom_SOURCES wrjpgcom.c)
-add_executable(wrjpgcom ${wrjpgcom_SOURCES})
-target_link_libraries(wrjpgcom ${LIB_NAME})
+    set(wrjpgcom_SOURCES wrjpgcom.c)
+    add_executable(wrjpgcom ${wrjpgcom_SOURCES})
+    target_link_libraries(wrjpgcom ${LIB_NAME})
 
-install(TARGETS cjpeg djpeg jpegtran rdjpgcom wrjpgcom
-    RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-    LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-    ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-    INCLUDES DESTINATION ${INSTALL_INC_DIR_12}
-    FRAMEWORK DESTINATION ${INSTALL_LIB_DIR})
+    install(TARGETS cjpeg djpeg jpegtran rdjpgcom wrjpgcom
+        RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+        LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+        INCLUDES DESTINATION ${INSTALL_INC_DIR_12}
+        FRAMEWORK DESTINATION ${INSTALL_LIB_DIR})
+endif()
 
 # Tests
 
