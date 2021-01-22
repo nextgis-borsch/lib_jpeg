@@ -215,7 +215,7 @@ elseif(OSX_FRAMEWORK)
     endif()
     if(BUILD_JPEG_12)
         add_library(${LIB_NAME}12 SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS_12} ${JPEG_PRIVATE_HDRS})
-        set_property(SOURCE ${JPEG_PRIVATE_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION "Headers/libjpeg12")
+        set_property(SOURCE ${JPEG_PRIVATE_HDRS} ${JPEG_PUBLIC_HDRS_12} PROPERTY MACOSX_PACKAGE_LOCATION "Headers/libjpeg12")
         set_target_properties(${LIB_NAME}12 PROPERTIES
             FRAMEWORK TRUE
             FRAMEWORK_VERSION ${FRAMEWORK_VERSION}
