@@ -3,7 +3,7 @@
 # Purpose:  CMake build scripts
 # Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nexgis.com
 ################################################################################
-# Copyright (C) 2015-2019, NextGIS <info@nextgis.com>
+# Copyright (C) 2015-2021, NextGIS <info@nextgis.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -64,7 +64,7 @@ else()
 
     set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE INTERNAL "Installation directory for executables" FORCE)
     set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE INTERNAL "Installation directory for libraries" FORCE)
-    set(INSTALL_INC_DIR_12 ${CMAKE_INSTALL_INCLUDEDIR}/jpeg12 CACHE INTERNAL "Installation directory for headers" FORCE)
+    set(INSTALL_INC_DIR_12 ${CMAKE_INSTALL_INCLUDEDIR}/libjpeg12 CACHE INTERNAL "Installation directory for headers" FORCE)
     set(INSTALL_INC_DIR_8 ${CMAKE_INSTALL_INCLUDEDIR} CACHE INTERNAL "Installation directory for headers" FORCE)
     set(INSTALL_CMAKECONF_DIR_8 ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/CMake CACHE INTERNAL "Installation directory for cmake config files" FORCE)
     set(INSTALL_CMAKECONF_DIR_12 ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}12/CMake CACHE INTERNAL "Installation directory for cmake config files" FORCE)
@@ -215,6 +215,7 @@ elseif(OSX_FRAMEWORK)
     endif()
     if(BUILD_JPEG_12)
         add_library(${LIB_NAME}12 SHARED ${JPEG_SRCS} ${JPEG_PUBLIC_HDRS_12} ${JPEG_PRIVATE_HDRS})
+        set_property(SOURCE ${JPEG_PRIVATE_HDRS} PROPERTY MACOSX_PACKAGE_LOCATION "Headers/libjpeg12")
         set_target_properties(${LIB_NAME}12 PROPERTIES
             FRAMEWORK TRUE
             FRAMEWORK_VERSION ${FRAMEWORK_VERSION}
@@ -224,7 +225,8 @@ elseif(OSX_FRAMEWORK)
             XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
             VERSION ${VERSION}
             SOVERSION ${JPEG_VERSION_MAJOR}
-            PUBLIC_HEADER "${JPEG_PUBLIC_HDRS_12}")
+            # PUBLIC_HEADER "${JPEG_PUBLIC_HDRS_12}"
+        )
     endif()
 else()
     if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
