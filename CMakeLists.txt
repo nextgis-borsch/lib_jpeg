@@ -126,8 +126,8 @@ if(NOT BUILD_JPEG_8 AND NOT BUILD_JPEG_12)
     set(BUILD_JPEG_8 TRUE)
 endif()
 
-configure_file(${PROJECT_SOURCE_DIR}/cmake/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/8/jmorecfg.h )
-configure_file(${PROJECT_SOURCE_DIR}/cmake/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/12/jmorecfg.h )
+configure_file(${PROJECT_SOURCE_DIR}/cmake/jmorecfg.h.8 ${CMAKE_CURRENT_BINARY_DIR}/libjpeg8/jmorecfg.h )
+configure_file(${PROJECT_SOURCE_DIR}/cmake/jmorecfg.h.12 ${CMAKE_CURRENT_BINARY_DIR}/libjpeg12/jmorecfg.h )
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/jmorecfg.h)
     file(RENAME ${PROJECT_SOURCE_DIR}/jmorecfg.h ${PROJECT_SOURCE_DIR}/jmorecfg.skip)
@@ -140,11 +140,11 @@ set(JPEG_PUBLIC_HDRS
 )
 
 set(JPEG_PUBLIC_HDRS_8 ${JPEG_PUBLIC_HDRS}
-    ${CMAKE_CURRENT_BINARY_DIR}/8/jmorecfg.h
+    ${CMAKE_CURRENT_BINARY_DIR}/libjpeg8/jmorecfg.h
 )
 
 set(JPEG_PUBLIC_HDRS_12 ${JPEG_PUBLIC_HDRS}
-    ${CMAKE_CURRENT_BINARY_DIR}/12/jmorecfg.h
+    ${CMAKE_CURRENT_BINARY_DIR}/libjpeg12/jmorecfg.h
 )
 
 set(JPEG_PRIVATE_HDRS
@@ -448,10 +448,12 @@ endif()
 # Create the <Package>Config.cmake file
 
 if(BUILD_JPEG_12)
+
+    file(COPY ${JPEG_PUBLIC_HDRS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libjpeg12/)
+
     target_include_directories(${LIB_NAME}12 PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/12>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/libjpeg12>
     )
 
     set(PACKAGE_NAME ${PROJECT_NAME}12)
@@ -482,10 +484,12 @@ if(BUILD_JPEG_12)
 endif()
 
 if(BUILD_JPEG_8)
+
+    file(COPY ${JPEG_PUBLIC_HDRS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/libjpeg8/)
+
     target_include_directories(${LIB_NAME} PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/8>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/libjpeg8>
     )
 
     set(PACKAGE_NAME ${PROJECT_NAME})
